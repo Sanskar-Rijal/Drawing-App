@@ -108,6 +108,12 @@ class Drawingview(cont:Context, att:AttributeSet) :View(cont,att)
             newsize,resources.displayMetrics)
         Drawpaint!!.strokeWidth=brushsize
     }
+    fun setcolor( newcolor :String)
+    {
+        color=Color.parseColor(newcolor) //#f0a6ca is a string
+        //parsing string into color
+        Drawpaint!!.color=color
+    }
     internal inner class CustomPath(var color:Int
     ,var brushthichkness:Float) :Path()
     {

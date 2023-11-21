@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 
@@ -56,5 +57,32 @@ class MainActivity : AppCompatActivity() {
             brushDialog.dismiss()
         }
         brushDialog.show()
+    }
+    fun paintclicked (view: View)
+    {
+        if (view!== mImageButtonCurrentPaint) //if it is clicked different position than current then we need to change color
+        {
+            val imageButton =view as ImageButton //we are taking the view from function in which we are clicking on
+            //it may be text view,image view etc but in our case we are making sure only image button has paintclicked method assigned to it
+            //so view always is going to be image button so converting it to image button
+
+            val getcolor =imageButton.tag.toString()//we created tag for ever single image button just to know the # value of color
+
+            drawingview?.setcolor(getcolor)
+            //if its selected then we must change ui to color_pressed
+            imageButton.setImageDrawable(
+                ContextCompat.getDrawable(this,R.drawable.color_pallet_pressedl)
+            )//image button is the current button we pressed so changing it's color to pressed
+
+
+            mImageButtonCurrentPaint?.setImageDrawable(
+                ContextCompat.getDrawable(this,R.drawable.color_pallet_normal) //mimagebuttoncurrentpaint is the previous image view which was pressed making it normal
+
+            )
+            mImageButtonCurrentPaint = view //At beginning mimagebuttoncurrentpaint was at black now when  clicked on red then the value of
+            //mimagebuttoncurrentpaint is still black but it should be red,again when yellow is pressed mimagebuttoncurrentpaint should be red because it
+            //represents just the value before so we used mImageButtonCurrentPaint = view so that it works properly
+            
+        }
     }
 }
