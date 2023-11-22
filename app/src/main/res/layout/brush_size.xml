@@ -19,9 +19,9 @@
         android:layout_height="wrap_content"
         android:src="@drawable/medium"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/small_brush"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/large_brush"
+        app:layout_constraintBottom_toTopOf="@+id/large_brush"
         />
     <ImageButton
         android:id="@+id/large_brush"
