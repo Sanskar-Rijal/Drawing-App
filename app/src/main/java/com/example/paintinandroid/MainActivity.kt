@@ -1,20 +1,69 @@
 package com.example.paintinandroid
 
+import android.Manifest
 import android.app.Dialog
+import android.content.Intent
+import android.icu.text.CaseMap.Title
 import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 
 class MainActivity : AppCompatActivity() {
     private var drawingview:Drawingview? = null
     private  var mImageButtonCurrentPaint :ImageButton? =null
+
+    /**
+     * launcher for opening gallery
+     */
+    val opengalleryLauncher:ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult())
+    {
+        result ->
+        if(result.resultCode == RESULT_OK && result.data!=null)
+        {
+            val imagebackground:ImageView=findViewById(R.id.imgview_background)
+            //we get uri so .setimgURI is choosed
+            imagebackground.setImageURI(result.data?.data)//we are using the location of the data
+        }
+    }
+    private var req_for_permission:ActivityResultLauncher<Array<String>>
+    =registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
+    {
+        permission->
+        permission.entries.forEach{
+            val permissionName=it.key //it value is of type boolean
+            val isgranted=it.value//so it will be either true of false
+            if (isgranted)
+            {
+                Toast.makeText(this,"permission granted",Toast.LENGTH_SHORT).show()
+                /**
+                 * now opening gallery using intent
+                 */
+                val pick_intent =Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                //we have to find a way to start this intent and select the image so we need to create a launcher
+                opengalleryLauncher.launch(pick_intent)
+            }
+            else
+            {
+                if(permissionName==Manifest.permission.READ_EXTERNAL_STORAGE)
+                {
+                    Toast.makeText(this,"oops you denied the permission",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,6 +83,51 @@ class MainActivity : AppCompatActivity() {
         brushsize_btn.setOnClickListener {
             showbrushsizechooserdialog()
         }
+        /**
+         * setting up gallery button so that it can access storage
+         */
+        val img_btn_gallery:ImageButton=findViewById(R.id.click_gallery)
+        img_btn_gallery.setOnClickListener {
+            requestStoragePermission()
+        }
+    }
+    private fun requestStoragePermission()
+    {
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this,
+            Manifest.permission.READ_EXTERNAL_STORAGE))
+        {
+            /**
+             * This method checks if the user has previously denied
+             * the permission request. If it returns true, it means t
+             * he user previously denied the permission at least once.
+             */
+            showRationalDialog("drawing app","it must access internal storage")
+        }
+        else
+        {
+            /**it means user has never been asked for permission so we should ask them
+             * so if it returns false value then it will ask for permission
+             */
+            req_for_permission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
+        }
+    }
+
+    /**
+     * using builder for asking permessions
+     */
+    private fun showRationalDialog(title:String,message:String)
+    {
+        val builder=AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setPositiveButton("cancel")
+        {
+            dialog,_->
+            Toast.makeText(this,"you clicked cancel",Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+        builder.setIcon(android.R.drawable.ic_dialog_alert)
+        builder.show()
     }
     private fun showbrushsizechooserdialog()
     {

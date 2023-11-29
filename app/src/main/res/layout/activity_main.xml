@@ -24,7 +24,6 @@
             android:layout_height="match_parent"
             android:scaleType="centerInside"
             android:src="@drawable/image"
-            
             />
     <com.example.paintinandroid.Drawingview
         android:id="@+id/showdrawing"
