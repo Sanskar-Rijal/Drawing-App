@@ -90,6 +90,17 @@ class MainActivity : AppCompatActivity() {
         img_btn_gallery.setOnClickListener {
             requestStoragePermission()
         }
+        /**
+         * setting up undo button
+         */
+        val undo_btn:ImageButton =findViewById(R.id.click_undo)
+        undo_btn.setOnClickListener {
+            drawingview?.onClickUndo()
+        }
+        val redo_btn:ImageButton=findViewById(R.id.click_redo)
+        redo_btn.setOnClickListener {
+            drawingview?.onClickRedo()
+        }
     }
     private fun requestStoragePermission()
     {

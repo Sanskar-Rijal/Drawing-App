@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 
 
 class Drawingview(cont:Context, att:AttributeSet) :View(cont,att)
@@ -25,9 +26,40 @@ class Drawingview(cont:Context, att:AttributeSet) :View(cont,att)
     private var brushsize:Float= 10.toFloat()
     private var color=Color.BLACK
     private var canvas:Canvas?=null
-    private var storepath =ArrayList<CustomPath>()
+    private var storepath =ArrayList<CustomPath>() //so that drawing will stay on screen
+    private var mUndoPath=ArrayList<CustomPath>()//for undo button
     init {
         setupDrawing() //used to setup default values
+    }
+
+    /**creating method for undo button
+     */
+    fun onClickUndo()
+    {
+        if(storepath.size>0) //cheecking if user has drawn any thing or not
+        {
+            mUndoPath.add(storepath.removeAt(storepath.size-1))//i want to delete last entry so size of array -1
+            /**
+             * storepath.remove[]will remove something at index from storepath where we have store whatever the user had drew
+             * storepath.size - 1 finds the index of the last element in storepath.
+             * storepath.removeAt(storepath.size - 1) removes the last element from storepath.
+             * The removed element is then added to the mUndoPath list using mUndoPath.add(...).
+             */
+            invalidate() //it will internally call on draw method
+        }
+    }
+
+    /**
+     * creating a redo button
+     */
+    fun onClickRedo()
+    {
+        if(mUndoPath.size>0)
+        {
+            storepath.add(mUndoPath.removeAt(mUndoPath.size-1))//removing from undo path and adding to store path
+            invalidate()//it will call our main function i.e ondraw
+        }
+
     }
     private fun setupDrawing()
     {

@@ -22,7 +22,7 @@
             android:id="@+id/imgview_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             android:src="@drawable/image"
             />
     <com.example.paintinandroid.Drawingview
@@ -156,6 +156,15 @@
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/linear_paint_color"
         >
+        <ImageButton
+            android:id="@+id/click_gallery"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/gallery"
+            android:background="@drawable/brushlogo"
+            android:scaleType="fitXY"
+            />
     <ImageButton
         android:id="@+id/click_brush"
         android:layout_width="50dp"
@@ -167,11 +176,20 @@
         android:padding="6dp"
         />
         <ImageButton
-            android:id="@+id/click_gallery"
+            android:id="@+id/click_undo"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="10dp"
-            android:src="@drawable/gallery"
+            android:src="@drawable/undo"
+            android:background="@drawable/brushlogo"
+            android:scaleType="fitXY"
+            />
+        <ImageButton
+            android:id="@+id/click_redo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/redo"
             android:background="@drawable/brushlogo"
             android:scaleType="fitXY"
             />
