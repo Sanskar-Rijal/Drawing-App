@@ -321,7 +321,7 @@ class MainActivity : AppCompatActivity() {
             )
             mImageButtonCurrentPaint = view //At beginning mimagebuttoncurrentpaint was at black now when  clicked on red then the value of
             //mimagebuttoncurrentpaint is still black but it should be red,again when yellow is pressed mimagebuttoncurrentpaint should be red because it
-            //represents just the value before so we used mImageButtonCurrentPaint = view so that it works properly
+            //represents just the value before so we used mImageButtonCurrentPaint = view so that it works properlyo
 
         }
     }
