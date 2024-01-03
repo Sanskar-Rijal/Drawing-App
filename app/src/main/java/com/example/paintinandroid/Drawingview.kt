@@ -65,13 +65,13 @@ class Drawingview(cont:Context, att:AttributeSet) :View(cont,att)
     {
         Drawpaint= Paint()
         drawpath= CustomPath(color,brushsize)
-       // if(Drawpaint != null) {
-            Drawpaint!!.color = color
-            Drawpaint!!.style=Paint.Style.STROKE
-            Drawpaint!!.strokeCap=Paint.Cap.ROUND
-       // }
+        // if(Drawpaint != null) {
+        Drawpaint!!.color = color
+        Drawpaint!!.style=Paint.Style.STROKE
+        Drawpaint!!.strokeCap=Paint.Cap.ROUND
+        // }
         mCanvasPaint=Paint(Paint.DITHER_FLAG)
-      //  brushsize=20.toFloat() we dont need this now already done in main activity
+        //  brushsize=20.toFloat() we dont need this now already done in main activity
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -147,7 +147,7 @@ class Drawingview(cont:Context, att:AttributeSet) :View(cont,att)
         Drawpaint!!.color=color
     }
     internal inner class CustomPath(var color:Int
-    ,var brushthichkness:Float) :Path()
+                                    ,var brushthichkness:Float) :Path()
     {
 
     }

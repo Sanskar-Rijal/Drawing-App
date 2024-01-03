@@ -3,13 +3,19 @@ package com.example.paintinandroid
 import android.Manifest
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.icu.text.CaseMap.Title
 import android.media.Image
+import android.media.MediaScannerConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -20,17 +26,48 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
     private var drawingview:Drawingview? = null
     private  var mImageButtonCurrentPaint :ImageButton? =null
-
+    var customprogressDialog:Dialog?=null //creating a progress dialog
+    /**
+     * creating show progress dialog
+     */
+    private fun showprogressDialog()
+    {
+        customprogressDialog= Dialog(this@MainActivity)
+        /**
+         * set the screen content from a layout resource
+         * The resource will be inflated ,adding all top-level views to the screen
+         */
+        customprogressDialog?.setContentView(R.layout.progressbar)
+        customprogressDialog?.show()//now to start the dialogue we use .show()
+    }
+    /**
+     * function to cancel progress dialogue
+     */
+    private fun cancelprogressdialogue()
+    {
+        if(customprogressDialog !=null)
+        {
+            customprogressDialog?.dismiss()
+            customprogressDialog=null
+        }
+    }
     /**
      * launcher for opening gallery
      */
     val opengalleryLauncher:ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult())
     {
-        result ->
+            result ->
         if(result.resultCode == RESULT_OK && result.data!=null)
         {
             val imagebackground:ImageView=findViewById(R.id.imgview_background)
@@ -38,10 +75,26 @@ class MainActivity : AppCompatActivity() {
             imagebackground.setImageURI(result.data?.data)//we are using the location of the data
         }
     }
-    private var req_for_permission:ActivityResultLauncher<Array<String>>
-    =registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
+
+    /**
+     * sharing image
+     */
+    private fun shareImage(result:String)
     {
-        permission->
+        MediaScannerConnection.scanFile(this,arrayOf(result),null)
+        {
+            path,uri ->
+            val shareIntent =Intent()
+            shareIntent.action = Intent.ACTION_SEND //using action in intent to perform operations
+            shareIntent.putExtra(Intent.EXTRA_STREAM,uri)//passing where the image is on the device
+            shareIntent.type="image/png"
+            startActivity(Intent.createChooser(shareIntent,"Share"))
+        }
+    }
+    private var req_for_permission:ActivityResultLauncher<Array<String>>
+            =registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
+    {
+            permission->
         permission.entries.forEach{
             val permissionName=it.key //it value is of type boolean
             val isgranted=it.value//so it will be either true of false
@@ -64,6 +117,65 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    //to store data
+    private fun getBitmapFromView(view: View):Bitmap
+    {
+        val returnedBitmap =Bitmap.createBitmap(view.width,view.height,Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(returnedBitmap)
+        val backgrounddraw=view.background
+        if(backgrounddraw !=null) //if there is back ground drawing it into canvas
+        {
+            backgrounddraw.draw(canvas)
+        }
+        else
+        {
+            canvas.drawColor(Color.WHITE)
+        }
+        view.draw(canvas)
+        return returnedBitmap
+    }
+    private suspend fun saveBitmapfile(mBitmap: Bitmap?):String //making courriteis
+    {
+        var result=" "
+        withContext(Dispatchers.IO)//to use withcontex we need dependencies beta01...
+        {
+            //first we check if bit map is null ornot
+            if(mBitmap!=null)
+            {
+                try {
+                    val bytes =ByteArrayOutputStream()
+                    mBitmap.compress(Bitmap.CompressFormat.PNG,90,bytes)
+                    //now we create a file out of it
+                    val f= File(externalCacheDir?.absoluteFile.toString()
+                            + File.separator + "paintinandroid_" + System.currentTimeMillis()/10000 + ".png")
+                    val fo=FileOutputStream(f)
+                    fo.write(bytes.toByteArray()) //it will take our output and make array outof if
+                    fo.close()
+                    result =f.absolutePath
+                    runOnUiThread {
+                        cancelprogressdialogue()
+                        if(result.isNotEmpty())
+                        {
+                            Toast.makeText(this@MainActivity,"File saved successfully $result",
+                                Toast.LENGTH_SHORT).show()
+                            shareImage(result)
+                        }
+                        else
+                        {
+                            Toast.makeText(this@MainActivity,
+                                "something went wrong",Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                catch (e:Exception)
+                {
+                    result=" "
+                    e.printStackTrace()
+                }
+            }
+        }
+        return result
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -71,6 +183,22 @@ class MainActivity : AppCompatActivity() {
         drawingview?.brushsize(10.toFloat())
         //in order to use mIMagebuttoncurrentpaint we have to setup linear layout first
         val linearLayoutPaintColors =findViewById<LinearLayout>(R.id.linear_paint_color)
+        //getting rid of grey effect on xml
+        /**
+         * creating save button
+         */
+        val save :ImageButton=findViewById(R.id.click_save)
+        save.setOnClickListener {
+            if(isReadStorageAllowed())
+            {
+                showprogressDialog()
+                lifecycleScope.launch {
+                    val fldrawingview:FrameLayout = findViewById(R.id.frm_lyt_container)
+                    val myBitmap: Bitmap= getBitmapFromView(fldrawingview)
+                    saveBitmapfile(myBitmap)
+                }
+            }
+        }
 
         mImageButtonCurrentPaint = linearLayoutPaintColors[1] as ImageButton //we want to use item at positon 1 but we want it to be treated as image button
         //items in linear layout are in image view so no problem
@@ -105,7 +233,7 @@ class MainActivity : AppCompatActivity() {
     private fun requestStoragePermission()
     {
         if(ActivityCompat.shouldShowRequestPermissionRationale(this,
-            Manifest.permission.READ_EXTERNAL_STORAGE))
+                Manifest.permission.READ_EXTERNAL_STORAGE))
         {
             /**
              * This method checks if the user has previously denied
@@ -119,8 +247,15 @@ class MainActivity : AppCompatActivity() {
             /**it means user has never been asked for permission so we should ask them
              * so if it returns false value then it will ask for permission
              */
-            req_for_permission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
+            req_for_permission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,  Manifest.permission.WRITE_EXTERNAL_STORAGE))
+
         }
+    }
+    //for newer devices making permission
+    private  fun isReadStorageAllowed():Boolean
+    {
+        val result=ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE)
+        return result==PackageManager.PERMISSION_DENIED
     }
 
     /**
@@ -133,7 +268,7 @@ class MainActivity : AppCompatActivity() {
         builder.setMessage(message)
         builder.setPositiveButton("cancel")
         {
-            dialog,_->
+                dialog,_->
             Toast.makeText(this,"you clicked cancel",Toast.LENGTH_SHORT).show()
             dialog.dismiss()
         }
@@ -187,7 +322,7 @@ class MainActivity : AppCompatActivity() {
             mImageButtonCurrentPaint = view //At beginning mimagebuttoncurrentpaint was at black now when  clicked on red then the value of
             //mimagebuttoncurrentpaint is still black but it should be red,again when yellow is pressed mimagebuttoncurrentpaint should be red because it
             //represents just the value before so we used mImageButtonCurrentPaint = view so that it works properly
-            
+
         }
     }
 }

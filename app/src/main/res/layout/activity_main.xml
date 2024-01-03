@@ -23,14 +23,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitCenter"
-            android:src="@drawable/image"
+            tools:src="@drawable/image"
             />
-    <com.example.paintinandroid.Drawingview
-        android:id="@+id/showdrawing"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#80FFFFFF"
-        />
+        <com.example.paintinandroid.Drawingview
+            android:id="@+id/showdrawing"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80FFFFFF"
+            />
     </FrameLayout>
     <LinearLayout
         android:id="@+id/linear_paint_color"
@@ -165,16 +165,16 @@
             android:background="@drawable/brushlogo"
             android:scaleType="fitXY"
             />
-    <ImageButton
-        android:id="@+id/click_brush"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_margin="10dp"
-        android:src="@drawable/brush"
-        android:background="@drawable/brushlogo"
-        android:scaleType="centerCrop"
-        android:padding="6dp"
-        />
+        <ImageButton
+            android:id="@+id/click_brush"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/brush"
+            android:background="@drawable/brushlogo"
+            android:scaleType="centerCrop"
+            android:padding="6dp"
+            />
         <ImageButton
             android:id="@+id/click_undo"
             android:layout_width="50dp"
@@ -191,6 +191,15 @@
             android:layout_margin="10dp"
             android:src="@drawable/redo"
             android:background="@drawable/brushlogo"
+            android:scaleType="fitXY"
+            />
+        <ImageButton
+            android:id="@+id/click_save"
+            android:layout_width="35dp"
+            android:layout_height="40dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/saveit"
+            android:background="@color/skin"
             android:scaleType="fitXY"
             />
 
