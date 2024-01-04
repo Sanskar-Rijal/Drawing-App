@@ -140,6 +140,7 @@
             android:scaleType="fitXY"
             android:tag="@color/random"
             android:background="@color/random"
+            android:onClick="paintclicked"
             />
 
 
