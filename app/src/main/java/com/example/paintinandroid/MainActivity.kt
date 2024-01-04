@@ -104,13 +104,13 @@ class MainActivity : AppCompatActivity() {
                 /**
                  * now opening gallery using intent
                  */
-                val pick_intent =Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                val pick_intent =Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                 //we have to find a way to start this intent and select the image so we need to create a launcher
                 opengalleryLauncher.launch(pick_intent)
             }
             else
             {
-                if(permissionName==Manifest.permission.READ_EXTERNAL_STORAGE)
+                if(permissionName==Manifest.permission.READ_EXTERNAL_STORAGE || permissionName==Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 {
                     Toast.makeText(this,"oops you denied the permission",Toast.LENGTH_SHORT).show()
                 }
@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
     private fun requestStoragePermission()
     {
         if(ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE))
+                Manifest.permission.READ_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.WRITE_EXTERNAL_STORAGE))
         {
             /**
              * This method checks if the user has previously denied
@@ -247,15 +247,16 @@ class MainActivity : AppCompatActivity() {
             /**it means user has never been asked for permission so we should ask them
              * so if it returns false value then it will ask for permission
              */
-            req_for_permission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,  Manifest.permission.WRITE_EXTERNAL_STORAGE))
+            req_for_permission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ))
 
         }
     }
     //for newer devices making permission
     private  fun isReadStorageAllowed():Boolean
     {
-        val result=ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE)
-        return result==PackageManager.PERMISSION_DENIED
+        val result=ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        return result==PackageManager.PERMISSION_GRANTED
     }
 
     /**
